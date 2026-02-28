@@ -22,7 +22,6 @@
 
         body {
             background-color: var(--vip-dark);
-            /* Gradientes fijos más ligeros que filtros de desenfoque */
             background-image: 
                 radial-gradient(circle at 20% 30%, rgba(255, 140, 0, 0.1) 0%, transparent 50%),
                 radial-gradient(circle at 80% 70%, rgba(255, 140, 0, 0.05) 0%, transparent 50%);
@@ -44,7 +43,7 @@
         }
 
         .vip-card {
-            background: #141414; /* Color sólido para evitar lag de blur */
+            background: #141414;
             border: 1px solid rgba(255, 140, 0, 0.15);
             position: relative;
             border-radius: 2rem;
@@ -52,10 +51,9 @@
             max-width: 24rem;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
             will-change: transform, opacity;
-            transform: translateZ(0); /* Aceleración por hardware */
+            transform: translateZ(0);
         }
 
-        /* Efecto de brillo de borde optimizado */
         .vip-card::after {
             content: "";
             position: absolute;
@@ -111,7 +109,6 @@
 
         .hidden { display: none !important; }
 
-        /* Animación de entrada simplificada */
         .fade-in {
             animation: fastIn 0.4s ease-out;
         }
@@ -119,6 +116,21 @@
         @keyframes fastIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Spinner Animación */
+        .spinner {
+            border: 3px solid rgba(255, 140, 0, 0.1);
+            border-top: 3px solid var(--vip-gold);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -155,6 +167,15 @@
                     <button id="btn-login" class="w-full py-4 vip-button mt-2">Entrar</button>
                     <button onclick="showScreen('register')" class="w-full text-gray-500 text-[10px] font-bold uppercase mt-4 tracking-widest">Crear Cuenta</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE CARGA (NUEVA) -->
+        <div id="loading-screen" class="vip-card hidden">
+            <div class="p-12 flex flex-col items-center text-center">
+                <div class="spinner mb-6"></div>
+                <h2 class="text-xl font-black uppercase tracking-widest neon-text">Verificando...</h2>
+                <p class="text-gray-500 text-[10px] mt-2 uppercase">Validando credenciales en el club</p>
             </div>
         </div>
 
@@ -227,12 +248,26 @@
 
         startApp();
 
+        // Manejador del botón de Login con efecto de carga
         document.getElementById('btn-login').onclick = async () => {
             const u = document.getElementById('input-user').value;
             const p = document.getElementById('input-pass').value;
             const error = document.getElementById('error-msg');
+            
+            if (!u || !p) {
+                error.textContent = "Campos requeridos";
+                error.classList.remove('hidden');
+                return;
+            }
+
+            // Mostrar pantalla de carga
+            showScreen('loading');
             error.classList.add('hidden');
 
+            // Simular un pequeño retraso de red para el efecto "VIP"
+            await new Promise(res => setTimeout(res, 1500));
+
+            // Lógica de validación
             if (defaultUsers[u] && defaultUsers[u] === p) return loginOk(u);
 
             if (isFirebaseReady && db) {
@@ -243,6 +278,10 @@
                     if (userDoc.exists() && userDoc.data().pass === p) return loginOk(u);
                 } catch (e) {}
             }
+            
+            // Si falla, volver al login y mostrar error
+            showScreen('login');
+            error.textContent = "Datos incorrectos";
             error.classList.remove('hidden');
         };
 
@@ -267,6 +306,9 @@
                 return;
             }
 
+            showScreen('loading');
+            await new Promise(res => setTimeout(res, 2000));
+
             if (isFirebaseReady && db) {
                 try {
                     const { setDoc, doc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
@@ -278,10 +320,12 @@
                     });
                     loginOk(u);
                 } catch (e) {
+                    showScreen('register');
                     err.textContent = "Error Red";
                     err.classList.remove('hidden');
                 }
             } else {
+                showScreen('register');
                 err.textContent = "DB no disponible";
                 err.classList.remove('hidden');
             }
