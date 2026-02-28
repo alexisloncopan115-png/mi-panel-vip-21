@@ -86,6 +86,7 @@
             border-radius: 1.1rem;
             box-shadow: 0 8px 20px rgba(255, 140, 0, 0.25);
             letter-spacing: 0.5px;
+            cursor: pointer;
         }
 
         .vip-button:active {
@@ -138,7 +139,7 @@
 
     <div id="app-container">
         
-        <!-- START SCREEN -->
+        <!-- PANTALLA DE INICIO -->
         <div id="start-screen" class="vip-card fade-in">
             <div class="p-9 flex flex-col items-center text-center">
                 <div class="w-22 h-22 rounded-full border border-orange-500/20 flex items-center justify-center bg-black/50 mb-7 shadow-inner">
@@ -150,13 +151,13 @@
                     PORTAL <br><span class="neon-text text-3xl">Exclusive VIP</span>
                 </h2>
                 <p class="text-gray-500 text-[9px] mb-9 tracking-[0.3em] uppercase font-bold">Autenticación de Élite</p>
-                <button onclick="showScreen('login')" class="w-full py-4.5 vip-button">
+                <button id="btn-to-login" class="w-full py-4.5 vip-button">
                     Entrar ahora
                 </button>
             </div>
         </div>
 
-        <!-- LOGIN SCREEN -->
+        <!-- PANTALLA DE LOGIN -->
         <div id="login-screen" class="vip-card hidden">
             <div class="p-9">
                 <h1 class="text-2xl font-black text-center mb-1 italic uppercase tracking-tighter">IDENTIDAD</h1>
@@ -166,12 +167,12 @@
                     <input type="password" id="input-pass" placeholder="Contraseña" class="premium-input">
                     <p id="error-msg" class="text-red-500 text-[10px] font-bold uppercase text-center hidden tracking-widest">Acceso denegado</p>
                     <button id="btn-login" class="w-full py-4.5 vip-button mt-2">Verificar</button>
-                    <button onclick="showScreen('register')" class="w-full text-gray-500 text-[10px] font-bold uppercase mt-5 tracking-[0.15em] hover:text-orange-400 transition-colors">Solicitar Registro</button>
+                    <button id="btn-to-register" class="w-full text-gray-500 text-[10px] font-bold uppercase mt-5 tracking-[0.15em] hover:text-orange-400 transition-colors">Solicitar Registro</button>
                 </div>
             </div>
         </div>
 
-        <!-- LOADING SCREEN -->
+        <!-- PANTALLA DE CARGA -->
         <div id="loading-screen" class="vip-card hidden">
             <div class="p-14 flex flex-col items-center text-center">
                 <div class="spinner mb-7"></div>
@@ -180,7 +181,7 @@
             </div>
         </div>
 
-        <!-- REGISTER SCREEN -->
+        <!-- PANTALLA DE REGISTRO -->
         <div id="register-screen" class="vip-card hidden">
             <div class="p-9">
                 <h1 class="text-2xl font-black text-center mb-1 italic uppercase tracking-tighter">NUEVO MIEMBRO</h1>
@@ -192,12 +193,12 @@
                     <input type="password" id="reg-confirm" placeholder="Confirmar Contraseña" class="premium-input">
                     <p id="reg-error" class="text-red-500 text-[10px] font-bold uppercase text-center hidden tracking-tighter"></p>
                     <button id="btn-register" class="w-full py-4.5 vip-button mt-2">Crear Cuenta</button>
-                    <button onclick="showScreen('login')" class="w-full text-gray-500 text-[10px] font-bold uppercase mt-4 tracking-[0.1em]">Volver</button>
+                    <button id="btn-to-login-back" class="w-full text-gray-500 text-[10px] font-bold uppercase mt-4 tracking-[0.1em]">Volver</button>
                 </div>
             </div>
         </div>
 
-        <!-- SUCCESS SCREEN -->
+        <!-- PANTALLA DE ÉXITO -->
         <div id="success-screen" class="vip-card hidden">
             <div class="p-11 flex flex-col items-center text-center">
                 <div class="w-18 h-18 bg-orange-500 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,140,0,0.4)] mb-7 animate-pulse">
@@ -221,32 +222,36 @@
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // Configuración Global
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // CONFIGURACIÓN FIREBASE
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'vip-default-app';
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let userAuthenticated = false;
+        let currentUser = null;
 
-        // Inicializar Auth
-        const initAuth = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
+        // INICIALIZAR AUTENTICACIÓN
+        const initSession = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (e) {
+                console.error("Auth error:", e);
             }
         };
 
-        initAuth();
+        initSession();
 
         onAuthStateChanged(auth, (user) => {
-            if (user) userAuthenticated = true;
+            currentUser = user;
         });
 
-        // Navegación
-        window.showScreen = (id) => {
+        // NAVEGACIÓN GLOBAL
+        const showScreen = (id) => {
             document.querySelectorAll('.vip-card').forEach(s => s.classList.add('hidden'));
             const target = document.getElementById(id + '-screen');
             if (target) {
@@ -255,51 +260,55 @@
             }
         };
 
+        // BINDING DE BOTONES DE NAVEGACIÓN
+        document.getElementById('btn-to-login').onclick = () => showScreen('login');
+        document.getElementById('btn-to-register').onclick = () => showScreen('register');
+        document.getElementById('btn-to-login-back').onclick = () => showScreen('login');
+
         const defaultUsers = { "referente": "1234", "Altamente.13": "1234", "Xican.net": "123" };
 
-        // Lógica Login
+        // LÓGICA DE LOGIN
         document.getElementById('btn-login').onclick = async () => {
             const u = document.getElementById('input-user').value.trim();
             const p = document.getElementById('input-pass').value.trim();
             const error = document.getElementById('error-msg');
             
             if (!u || !p) {
-                error.textContent = "Datos incompletos";
+                error.textContent = "Campos obligatorios";
                 error.classList.remove('hidden');
                 return;
             }
 
+            error.classList.add('hidden');
             document.getElementById('loading-text').textContent = "Verificando Credenciales...";
             showScreen('loading');
-            error.classList.add('hidden');
 
-            // Delay estético VIP
-            await new Promise(res => setTimeout(res, 1500));
+            // Retraso estético para sensación premium
+            await new Promise(r => setTimeout(r, 1200));
 
-            // 1. Verificar usuarios por defecto (Hardcoded)
-            if (defaultUsers[u] && defaultUsers[u] === p) return loginOk(u);
+            // 1. Hardcoded Check
+            if (defaultUsers[u] && defaultUsers[u] === p) return loginSuccess(u);
 
-            // 2. Verificar en Firestore (Usuarios registrados)
-            if (userAuthenticated) {
+            // 2. Firestore Check
+            if (currentUser) {
                 try {
-                    // Ruta obligatoria: /artifacts/{appId}/public/data/users/{userId}
-                    const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', u);
-                    const userDoc = await getDoc(userDocRef);
+                    const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', u);
+                    const userSnap = await getDoc(userRef);
                     
-                    if (userDoc.exists() && userDoc.data().pass === p) {
-                        return loginOk(u);
+                    if (userSnap.exists() && userSnap.data().pass === p) {
+                        return loginSuccess(u);
                     }
                 } catch (e) {
-                    console.error("Firestore Error:", e);
+                    console.error("Firestore error:", e);
                 }
             }
             
             showScreen('login');
-            error.textContent = "Acceso Denegado";
+            error.textContent = "Acceso denegado";
             error.classList.remove('hidden');
         };
 
-        // Lógica Registro con Guardado Permanente
+        // LÓGICA DE REGISTRO
         document.getElementById('btn-register').onclick = async () => {
             const name = document.getElementById('reg-name').value.trim();
             const u = document.getElementById('reg-user').value.trim();
@@ -310,7 +319,7 @@
             err.classList.add('hidden');
 
             if (!name || !u || !p || !pc) {
-                err.textContent = "Campos obligatorios";
+                err.textContent = "Faltan datos";
                 err.classList.remove('hidden');
                 return;
             }
@@ -321,48 +330,47 @@
                 return;
             }
 
-            document.getElementById('loading-text').textContent = "Creando Registro VIP...";
+            document.getElementById('loading-text').textContent = "Inscribiendo en Registro VIP...";
             showScreen('loading');
 
-            if (userAuthenticated) {
+            if (currentUser) {
                 try {
-                    // Verificar si el usuario ya existe
-                    const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', u);
-                    const checkDoc = await getDoc(userDocRef);
+                    const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', u);
+                    const check = await getDoc(userRef);
 
-                    if (checkDoc.exists()) {
+                    if (check.exists()) {
                         showScreen('register');
                         err.textContent = "Usuario ya existe";
                         err.classList.remove('hidden');
                         return;
                     }
 
-                    // Guardar en la nube
-                    await setDoc(userDocRef, { 
+                    await setDoc(userRef, { 
                         name: name,
                         user: u, 
                         pass: p,
-                        createdAt: new Date().toISOString()
+                        date: new Date().toISOString()
                     });
 
-                    await new Promise(res => setTimeout(res, 1000));
-                    loginOk(u);
+                    await new Promise(r => setTimeout(r, 800));
+                    loginSuccess(u);
                 } catch (e) {
                     showScreen('register');
-                    err.textContent = "Error al guardar registro";
+                    err.textContent = "Error de conexión";
                     err.classList.remove('hidden');
                 }
             } else {
                 showScreen('register');
-                err.textContent = "Error de conexión";
+                err.textContent = "Servidor no listo";
                 err.classList.remove('hidden');
             }
         };
 
-        function loginOk(user) {
+        function loginSuccess(user) {
             document.getElementById('display-user').textContent = user.toUpperCase();
             showScreen('success');
         }
     </script>
 </body>
 </html>
+
