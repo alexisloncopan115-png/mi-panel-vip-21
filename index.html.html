@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="es" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VIP Exclusive Access</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
@@ -11,37 +12,27 @@
             --vip-gold: #ff8c00;
             --vip-gold-light: #ffb347;
             --vip-dark: #0a0a0a;
-            --vip-gray: #1a1a1a;
+            --vip-gray: #121212;
         }
 
-        * { font-family: 'Outfit', sans-serif; }
+        * { 
+            font-family: 'Outfit', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+        }
 
         body {
             background-color: var(--vip-dark);
+            /* Gradientes fijos más ligeros que filtros de desenfoque */
             background-image: 
-                radial-gradient(circle at 20% 30%, rgba(255, 140, 0, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(255, 140, 0, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 20% 30%, rgba(255, 140, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 140, 0, 0.05) 0%, transparent 50%);
             color: white;
             margin: 0;
-            padding: 0;
             overflow: hidden;
-            height: 100vh;
-            width: 100vw;
+            height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        /* Efecto de partículas de fondo */
-        .bg-stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: url('https://www.transparenttextures.com/patterns/stardust.png');
-            opacity: 0.3;
         }
 
         #app-container {
@@ -49,196 +40,151 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            perspective: 1000px;
+            padding: 1.5rem;
         }
 
         .vip-card {
-            background: rgba(20, 20, 20, 0.8);
-            backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 140, 0, 0.1);
+            background: #141414; /* Color sólido para evitar lag de blur */
+            border: 1px solid rgba(255, 140, 0, 0.15);
             position: relative;
-            border-radius: 2.5rem;
+            border-radius: 2rem;
             width: 100%;
-            max-width: 26rem;
-            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8);
-            animation: cardAppear 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            max-width: 24rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+            will-change: transform, opacity;
+            transform: translateZ(0); /* Aceleración por hardware */
         }
 
-        /* El haz de luz animado en el borde */
+        /* Efecto de brillo de borde optimizado */
         .vip-card::after {
             content: "";
             position: absolute;
-            inset: -2px;
-            background: linear-gradient(45deg, transparent, transparent, var(--vip-gold), transparent, transparent);
-            background-size: 200% 200%;
-            border-radius: 2.5rem;
+            inset: -1px;
+            background: linear-gradient(90deg, transparent, var(--vip-gold), transparent);
+            background-size: 200% 100%;
+            border-radius: 2rem;
             z-index: -1;
-            animation: borderGlow 6s linear infinite;
+            animation: borderSlide 4s linear infinite;
+            opacity: 0.4;
         }
 
-        @keyframes borderGlow {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 200% 200%; }
-        }
-
-        @keyframes cardAppear {
-            from { opacity: 0; transform: translateY(30px) scale(0.95) rotateX(-10deg); }
-            to { opacity: 1; transform: translateY(0) scale(1) rotateX(0); }
-        }
-
-        .vip-card-inner {
-            background: linear-gradient(145deg, #121212, #080808);
-            border-radius: 2.4rem;
-            margin: 3px;
-            position: relative;
-            z-index: 1;
+        @keyframes borderSlide {
+            0% { background-position: 200% 0%; }
+            100% { background-position: -200% 0%; }
         }
 
         .neon-text {
             color: var(--vip-gold);
-            text-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
+            text-shadow: 0 0 10px rgba(255, 140, 0, 0.4);
             font-family: 'Playfair Display', serif;
             font-style: italic;
         }
 
         .vip-button {
             background: linear-gradient(135deg, var(--vip-gold), var(--vip-gold-light));
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             color: black;
             font-weight: 900;
-            letter-spacing: 1px;
             text-transform: uppercase;
-            border-radius: 1.2rem;
-            box-shadow: 0 10px 30px -5px rgba(255, 140, 0, 0.4);
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(255, 140, 0, 0.2);
         }
 
-        /* Efecto de brillo al pasar el ratón */
-        .vip-button::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.2);
-            transform: rotate(45deg) translateY(-100%);
-            transition: 0.6s;
-        }
-
-        .vip-button:hover::before {
-            transform: rotate(45deg) translateY(100%);
-        }
-
-        .vip-button:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 20px 40px -10px rgba(255, 140, 0, 0.6);
+        .vip-button:active {
+            transform: scale(0.96);
         }
 
         .premium-input {
-            background: rgba(255, 255, 255, 0.05);
+            background: #1c1c1c;
             border: 1px solid rgba(255, 140, 0, 0.1);
             width: 100%;
-            padding: 1.1rem 1.25rem;
-            border-radius: 1rem;
+            padding: 1rem;
+            border-radius: 0.8rem;
             color: white;
             outline: none;
-            transition: all 0.4s;
-            font-size: 0.95rem;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            transition: border-color 0.3s;
         }
 
         .premium-input:focus {
             border-color: var(--vip-gold);
-            background: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 20px rgba(255, 140, 0, 0.15), inset 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .hidden { display: none !important; }
 
-        /* Pantalla de éxito dorada */
-        .success-bg {
-            background: radial-gradient(circle, rgba(255, 140, 0, 0.2) 0%, transparent 70%);
+        /* Animación de entrada simplificada */
+        .fade-in {
+            animation: fastIn 0.4s ease-out;
+        }
+
+        @keyframes fastIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    <div class="bg-stars"></div>
-
-    <div id="app-container" class="px-6">
+    <div id="app-container">
         
         <!-- PANTALLA 1: INICIO -->
-        <div id="start-screen" class="vip-card">
-            <div class="vip-card-inner p-10 flex flex-col items-center text-center">
-                <div class="relative mb-10">
-                    <div class="absolute inset-0 bg-orange-500 blur-2xl opacity-20 animate-pulse"></div>
-                    <div class="relative w-24 h-24 rounded-full border-2 border-orange-500/40 flex items-center justify-center bg-black/80 shadow-2xl">
-                        <svg class="w-12 h-12 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A10.003 10.003 0 0012 21a9.994 9.994 0 009-5.101M12 11c1.283 0 2.46-.366 3.455-.991m2.738-4.03a9.959 9.959 0 00-4.526-2.912M12 11V3m0 8c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z" />
-                        </svg>
-                    </div>
+        <div id="start-screen" class="vip-card fade-in">
+            <div class="p-8 flex flex-col items-center text-center">
+                <div class="w-20 h-20 rounded-full border border-orange-500/30 flex items-center justify-center bg-black/40 mb-6">
+                    <svg class="w-10 h-10 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11V3m0 8c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z" />
+                    </svg>
                 </div>
-                <h2 class="text-3xl font-black mb-4 uppercase tracking-tighter leading-none">
-                    MEMBRESÍA <br><span class="neon-text text-4xl">Exclusive</span>
+                <h2 class="text-2xl font-black mb-2 uppercase tracking-tighter">
+                    MEMBRESÍA <br><span class="neon-text text-3xl">Exclusive</span>
                 </h2>
-                <p class="text-gray-500 text-sm mb-10 tracking-widest font-light">CONFIRME SU IDENTIDAD PARA ACCEDER</p>
-                <button onclick="showScreen('login')" class="w-full py-5 vip-button">
-                    Entrar al Club
+                <p class="text-gray-500 text-[10px] mb-8 tracking-widest uppercase">Verificación Requerida</p>
+                <button onclick="showScreen('login')" class="w-full py-4 vip-button">
+                    Acceder
                 </button>
             </div>
         </div>
 
         <!-- PANTALLA 2: LOGIN -->
         <div id="login-screen" class="vip-card hidden">
-            <div class="vip-card-inner p-10">
-                <h1 class="text-3xl font-black text-center mb-2 italic tracking-tighter uppercase">BIENVENIDO</h1>
-                <p class="text-center text-gray-500 text-[10px] tracking-[0.3em] mb-10 uppercase font-bold">Inicie Sesión</p>
-                <div class="space-y-5">
-                    <input type="text" id="input-user" placeholder="Nombre de usuario" class="premium-input">
-                    <input type="password" id="input-pass" placeholder="Contraseña secreta" class="premium-input">
-                    <p id="error-msg" class="text-red-500 text-[10px] font-black uppercase text-center hidden tracking-widest">Credenciales Inválidas</p>
-                    <button id="btn-login" class="w-full py-5 vip-button mt-6">Autenticar</button>
-                    <button onclick="showScreen('register')" class="w-full text-gray-500 text-[10px] font-black uppercase mt-4 tracking-widest hover:text-orange-500 transition-colors">Solicitar Acceso (Registro)</button>
+            <div class="p-8">
+                <h1 class="text-2xl font-black text-center mb-6 italic uppercase tracking-tighter">BIENVENIDO</h1>
+                <div class="space-y-4">
+                    <input type="text" id="input-user" placeholder="Usuario" class="premium-input">
+                    <input type="password" id="input-pass" placeholder="Contraseña" class="premium-input">
+                    <p id="error-msg" class="text-red-500 text-[10px] font-bold uppercase text-center hidden">Datos incorrectos</p>
+                    <button id="btn-login" class="w-full py-4 vip-button mt-2">Entrar</button>
+                    <button onclick="showScreen('register')" class="w-full text-gray-500 text-[10px] font-bold uppercase mt-4 tracking-widest">Crear Cuenta</button>
                 </div>
             </div>
         </div>
 
         <!-- PANTALLA 3: REGISTRO -->
         <div id="register-screen" class="vip-card hidden">
-            <div class="vip-card-inner p-10">
-                <h1 class="text-3xl font-black text-center mb-2 italic tracking-tighter uppercase">SOLICITUD</h1>
-                <p class="text-center text-gray-500 text-[10px] tracking-[0.3em] mb-8 uppercase font-bold">Nuevo Miembro VIP</p>
-                <div class="space-y-4">
-                    <input type="text" id="reg-name" placeholder="Nombre Completo" class="premium-input">
+            <div class="p-8">
+                <h1 class="text-2xl font-black text-center mb-6 italic uppercase tracking-tighter">REGISTRO</h1>
+                <div class="space-y-3">
+                    <input type="text" id="reg-name" placeholder="Nombre" class="premium-input">
                     <input type="text" id="reg-user" placeholder="Usuario VIP" class="premium-input">
-                    <input type="password" id="reg-pass" placeholder="Nueva Contraseña" class="premium-input">
-                    <input type="password" id="reg-confirm" placeholder="Confirmar Contraseña" class="premium-input">
-                    <p id="reg-error" class="text-red-500 text-[10px] font-black uppercase text-center hidden tracking-widest"></p>
-                    <button id="btn-register" class="w-full py-5 vip-button mt-4">Registrar</button>
-                    <button onclick="showScreen('login')" class="w-full text-gray-500 text-[10px] font-black uppercase mt-4 tracking-widest hover:text-orange-500 transition-colors">Ya soy miembro</button>
+                    <input type="password" id="reg-pass" placeholder="Contraseña" class="premium-input">
+                    <input type="password" id="reg-confirm" placeholder="Confirmar" class="premium-input">
+                    <p id="reg-error" class="text-red-500 text-[10px] font-bold uppercase text-center hidden"></p>
+                    <button id="btn-register" class="w-full py-4 vip-button mt-2">Registrar</button>
+                    <button onclick="showScreen('login')" class="w-full text-gray-500 text-[10px] font-bold uppercase mt-4 tracking-widest">Volver</button>
                 </div>
             </div>
         </div>
 
         <!-- PANTALLA 4: ÉXITO -->
         <div id="success-screen" class="vip-card hidden">
-            <div class="vip-card-inner p-12 flex flex-col items-center text-center success-bg">
-                <div class="relative mb-8">
-                    <div class="absolute inset-0 bg-orange-500 blur-3xl opacity-40"></div>
-                    <div class="relative w-20 h-20 bg-orange-500 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(255,140,0,0.8)] scale-110 animate-bounce">
-                        <svg class="w-10 h-10 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7" /></svg>
-                    </div>
+            <div class="p-10 flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center shadow-lg mb-6">
+                    <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7" /></svg>
                 </div>
-                <h2 class="text-3xl font-black mb-2 uppercase italic tracking-tighter">Bienvenido</h2>
-                <p class="text-gray-500 text-[10px] tracking-[0.3em] uppercase mb-8">MIEMBRO VERIFICADO</p>
-                
-                <div class="w-full bg-white/5 rounded-2xl p-5 border border-orange-500/30 backdrop-blur-md mb-10">
-                    <p id="display-user" class="text-2xl font-black text-orange-500 italic tracking-widest">---</p>
+                <h2 class="text-2xl font-black mb-1 uppercase italic tracking-tighter">Verificado</h2>
+                <div class="w-full bg-white/5 rounded-xl p-4 border border-orange-500/20 my-6">
+                    <p id="display-user" class="text-xl font-black text-orange-500 italic">---</p>
                 </div>
-                
-                <button onclick="window.location.href='https://beacons.ai/xican_41462008'" class="w-full py-5 bg-white text-black font-black rounded-2xl uppercase text-xs tracking-[0.2em] hover:bg-orange-500 hover:text-black transition-all shadow-2xl">
+                <button onclick="window.location.href='https://beacons.ai/xican_41462008'" class="w-full py-4 bg-white text-black font-black rounded-xl uppercase text-xs tracking-widest">
                     Entrar al Portal
                 </button>
             </div>
@@ -248,22 +194,11 @@
 
     <script type="module">
         window.showScreen = (id) => {
-            const current = document.querySelector('.vip-card:not(.hidden)');
-            if (current) {
-                current.style.opacity = '0';
-                current.style.transform = 'translateY(-20px) scale(0.95)';
-                setTimeout(() => {
-                    document.querySelectorAll('.vip-card').forEach(s => s.classList.add('hidden'));
-                    const target = document.getElementById(id + '-screen');
-                    if (target) {
-                        target.classList.remove('hidden');
-                        target.style.opacity = '1';
-                        target.style.transform = 'translateY(0) scale(1)';
-                    }
-                }, 300);
-            } else {
-                document.querySelectorAll('.vip-card').forEach(s => s.classList.add('hidden'));
-                document.getElementById(id + '-screen').classList.remove('hidden');
+            document.querySelectorAll('.vip-card').forEach(s => s.classList.add('hidden'));
+            const target = document.getElementById(id + '-screen');
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.add('fade-in');
             }
         };
 
@@ -286,7 +221,7 @@
                     isFirebaseReady = true;
                 }
             } catch (e) {
-                console.log("Local mode.");
+                console.log("Offline mode.");
             }
         }
 
@@ -327,7 +262,7 @@
             }
 
             if (p !== pc) {
-                err.textContent = "Contraseñas no coinciden";
+                err.textContent = "No coinciden";
                 err.classList.remove('hidden');
                 return;
             }
@@ -343,11 +278,11 @@
                     });
                     loginOk(u);
                 } catch (e) {
-                    err.textContent = "Error de Conexión";
+                    err.textContent = "Error Red";
                     err.classList.remove('hidden');
                 }
             } else {
-                err.textContent = "Cloud DB no disponible";
+                err.textContent = "DB no disponible";
                 err.classList.remove('hidden');
             }
         };
@@ -359,6 +294,3 @@
     </script>
 </body>
 </html>
-
-
-
