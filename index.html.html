@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,11 +23,20 @@
                 radial-gradient(circle at 90% 80%, rgba(255, 140, 0, 0.08) 0%, transparent 40%);
             color: white;
             margin: 0;
+            padding: 0;
             overflow: hidden;
             height: 100vh;
+            width: 100vw;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        #app-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .vip-card {
@@ -38,7 +47,8 @@
             overflow: hidden;
             border-radius: 2rem;
             width: 100%;
-            max-width: 28rem;
+            max-width: 24rem; /* Tamaño ideal para móvil y escritorio */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         .vip-card::before {
@@ -56,7 +66,7 @@
 
         .vip-card-inner {
             background: var(--vip-gray);
-            border-radius: 1.5rem;
+            border-radius: 1.85rem;
             margin: 2px;
         }
 
@@ -71,7 +81,7 @@
 
         .vip-button {
             background: linear-gradient(90deg, #ff8c00, #ffb347);
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             color: black;
             font-weight: 800;
             text-transform: uppercase;
@@ -79,8 +89,8 @@
         }
 
         .vip-button:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(255, 140, 0, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 140, 0, 0.3);
         }
 
         .premium-input {
@@ -91,10 +101,12 @@
             border-radius: 0.75rem;
             color: white;
             outline: none;
+            transition: all 0.3s;
         }
 
         .premium-input:focus {
             border-color: var(--vip-orange);
+            background: rgba(255, 255, 255, 0.07);
         }
 
         .hidden { display: none !important; }
@@ -102,19 +114,19 @@
 </head>
 <body>
 
-    <div id="app-container" class="w-full px-4">
+    <div id="app-container" class="px-4">
         
         <!-- PANTALLA 1: INICIO -->
         <div id="start-screen" class="vip-card">
-            <div class="vip-card-inner p-10 flex flex-col items-center text-center">
-                <div class="mb-8">
+            <div class="vip-card-inner p-8 sm:p-10 flex flex-col items-center text-center">
+                <div class="mb-6">
                     <div class="w-20 h-20 rounded-full border-4 border-[#ff8c00]/30 flex items-center justify-center bg-black/50">
                         <svg class="w-10 h-10 text-[#ff8c00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                     </div>
                 </div>
-                <h2 class="text-2xl font-black mb-6 uppercase italic">
+                <h2 class="text-2xl font-black mb-6 uppercase italic leading-tight">
                     Necesitamos <span class="neon-text">confirmar</span> tu usuario
                 </h2>
                 <button onclick="showScreen('login')" class="w-full py-4 vip-button">
@@ -168,24 +180,23 @@
     </div>
 
     <script type="module">
-        // Lógica de navegación simple (siempre funciona)
+        // Lógica de navegación
         window.showScreen = (id) => {
             document.querySelectorAll('.vip-card').forEach(s => s.classList.add('hidden'));
-            document.getElementById(id + '-screen').classList.remove('hidden');
+            const target = document.getElementById(id + '-screen');
+            if (target) target.classList.remove('hidden');
         };
 
         const defaultUsers = { "referente": "1234", "Altamente.13": "1234", "Xican.net": "123" };
 
-        // Intentamos cargar Firebase de forma segura
         let db = null;
         let isFirebaseReady = false;
 
         async function startApp() {
             try {
-                // Solo si estamos en el entorno que provee la config
                 if (typeof __firebase_config !== 'undefined') {
                     const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
-                    const { getFirestore, doc, setDoc, getDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                    const { getFirestore } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
                     const { getAuth, signInAnonymously } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
 
                     const config = JSON.parse(__firebase_config);
@@ -196,42 +207,33 @@
                     isFirebaseReady = true;
                 }
             } catch (e) {
-                console.log("Modo local activado.");
+                console.log("Funcionando en modo local.");
             }
         }
 
-        // Ejecutar carga de Firebase
         startApp();
 
-        // Botón Login
+        // Login
         document.getElementById('btn-login').onclick = async () => {
             const u = document.getElementById('input-user').value;
             const p = document.getElementById('input-pass').value;
             const error = document.getElementById('error-msg');
-            
             error.classList.add('hidden');
 
-            // 1. Check Locales
-            if (defaultUsers[u] && defaultUsers[u] === p) {
-                return loginOk(u);
-            }
+            if (defaultUsers[u] && defaultUsers[u] === p) return loginOk(u);
 
-            // 2. Check Firebase
             if (isFirebaseReady && db) {
                 try {
                     const { getDoc, doc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
                     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
                     const userDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', u));
-                    if (userDoc.exists() && userDoc.data().pass === p) {
-                        return loginOk(u);
-                    }
+                    if (userDoc.exists() && userDoc.data().pass === p) return loginOk(u);
                 } catch (e) {}
             }
-
             error.classList.remove('hidden');
         };
 
-        // Botón Registro
+        // Registro
         document.getElementById('btn-register').onclick = async () => {
             const u = document.getElementById('reg-user').value;
             const p = document.getElementById('reg-pass').value;
@@ -251,7 +253,7 @@
                     err.classList.remove('hidden');
                 }
             } else {
-                err.textContent = "Base de datos no disponible en GitHub";
+                err.textContent = "Base de datos no disponible.";
                 err.classList.remove('hidden');
             }
         };
@@ -263,3 +265,4 @@
     </script>
 </body>
 </html>
+
