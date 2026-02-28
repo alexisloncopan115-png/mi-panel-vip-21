@@ -47,7 +47,7 @@
             overflow: hidden;
             border-radius: 2rem;
             width: 100%;
-            max-width: 24rem; /* Tamaño ideal para móvil y escritorio */
+            max-width: 24rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
@@ -97,11 +97,12 @@
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 140, 0, 0.15);
             width: 100%;
-            padding: 1rem;
+            padding: 0.85rem 1rem;
             border-radius: 0.75rem;
             color: white;
             outline: none;
             transition: all 0.3s;
+            font-size: 0.9rem;
         }
 
         .premium-input:focus {
@@ -149,16 +150,18 @@
             </div>
         </div>
 
-        <!-- PANTALLA 3: REGISTRO -->
+        <!-- PANTALLA 3: REGISTRO (Actualizada con los nuevos campos solicitados) -->
         <div id="register-screen" class="vip-card hidden">
             <div class="vip-card-inner p-8">
-                <h1 class="text-2xl font-black text-center mb-6 italic uppercase">Nuevo Registro</h1>
-                <div class="space-y-4">
-                    <input type="text" id="reg-user" placeholder="Usuario" class="premium-input">
+                <h1 class="text-2xl font-black text-center mb-6 italic uppercase leading-none">Nuevo Registro</h1>
+                <div class="space-y-3">
+                    <input type="text" id="reg-name" placeholder="Nombre completo" class="premium-input">
+                    <input type="text" id="reg-user" placeholder="Nombre de usuario" class="premium-input">
                     <input type="password" id="reg-pass" placeholder="Contraseña" class="premium-input">
-                    <p id="reg-error" class="text-red-500 text-xs font-bold uppercase text-center hidden"></p>
+                    <input type="password" id="reg-confirm" placeholder="Confirmar contraseña" class="premium-input">
+                    <p id="reg-error" class="text-red-500 text-[10px] font-bold uppercase text-center hidden"></p>
                     <button id="btn-register" class="w-full py-4 vip-button mt-2">Registrarme</button>
-                    <button onclick="showScreen('login')" class="w-full text-gray-500 text-xs font-bold uppercase mt-2">Volver</button>
+                    <button onclick="showScreen('login')" class="w-full text-gray-500 text-xs font-bold uppercase mt-2">Volver al Login</button>
                 </div>
             </div>
         </div>
@@ -173,7 +176,6 @@
                 <div class="w-full bg-black/40 rounded-xl p-4 border border-[#ff8c00]/20 my-6">
                     <p id="display-user" class="text-lg font-bold text-[#ff8c00]">---</p>
                 </div>
-                <!-- Botón modificado para redireccionar a Beacons -->
                 <button onclick="window.location.href='https://beacons.ai/xican_41462008'" class="w-full py-4 bg-white/10 text-white font-bold rounded-xl uppercase text-xs tracking-widest hover:bg-white/20 transition-all">Seguir</button>
             </div>
         </div>
@@ -234,23 +236,41 @@
             error.classList.remove('hidden');
         };
 
-        // Registro
+        // Registro con validaciones nuevas
         document.getElementById('btn-register').onclick = async () => {
+            const name = document.getElementById('reg-name').value;
             const u = document.getElementById('reg-user').value;
             const p = document.getElementById('reg-pass').value;
+            const pc = document.getElementById('reg-confirm').value;
             const err = document.getElementById('reg-error');
+            
             err.classList.add('hidden');
 
-            if (!u || !p) return;
+            if (!name || !u || !p || !pc) {
+                err.textContent = "Completa todos los campos";
+                err.classList.remove('hidden');
+                return;
+            }
+
+            if (p !== pc) {
+                err.textContent = "Las contraseñas no coinciden";
+                err.classList.remove('hidden');
+                return;
+            }
 
             if (isFirebaseReady && db) {
                 try {
                     const { setDoc, doc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
                     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', u), { user: u, pass: p });
+                    // Guardamos nombre, usuario y contraseña
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', u), { 
+                        name: name,
+                        user: u, 
+                        pass: p 
+                    });
                     loginOk(u);
                 } catch (e) {
-                    err.textContent = "Error al conectar";
+                    err.textContent = "Error al conectar con la base de datos";
                     err.classList.remove('hidden');
                 }
             } else {
@@ -266,5 +286,6 @@
     </script>
 </body>
 </html>
+
 
 
