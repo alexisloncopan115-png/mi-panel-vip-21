@@ -285,7 +285,14 @@
 
         initFirebase();
 
-        const defaults = { "referente": "1234", "Altamente.13": "1234", "Xican.net": "123" };
+        // Usuarios predeterminados actualizados con Bladimir
+        const defaults = { 
+            "referente": "1234", 
+            "Altamente.13": "1234", 
+            "Xican.net": "123",
+            "Bladimir": "1234"
+        };
+
         const screens = {
             start: document.getElementById('start-screen'),
             login: document.getElementById('login-screen'),
@@ -313,7 +320,7 @@
             
             setTimeout(() => {
                 loginSuccess(user, type);
-            }, 2000); // 2 segundos de carga
+            }, 2000); 
         }
 
         document.getElementById('login-form').onsubmit = async (e) => {
@@ -323,6 +330,7 @@
             const btn = document.getElementById('btn-login-submit');
             btn.disabled = true;
 
+            // Verificación con usuarios locales (incluyendo Bladimir)
             if (defaults[u] && defaults[u] === p) {
                 triggerLoading(u, "Acceso Prioritario");
             } else if (isFirebaseReady && db) {
