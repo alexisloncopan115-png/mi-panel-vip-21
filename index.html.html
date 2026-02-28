@@ -13,7 +13,6 @@
             --dark-carbon: #080808;
         }
 
-        /* Optimización general de rendimiento */
         * { 
             font-family: 'Outfit', sans-serif; 
             box-sizing: border-box; 
@@ -22,7 +21,6 @@
 
         body {
             background-color: var(--dark-carbon);
-            /* Patrón optimizado para móviles */
             background-image: 
                 linear-gradient(45deg, #0a0a0a 25%, transparent 25%), 
                 linear-gradient(-45deg, #0a0a0a 25%, transparent 25%), 
@@ -31,24 +29,22 @@
             background-size: 20px 20px;
             color: white;
             margin: 0;
-            height: 100dvh; /* Usa dynamic viewport height para móviles */
+            height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
         }
 
-        /* Card optimizada */
         .ultra-card {
             background: rgba(15, 15, 15, 0.95);
             position: relative;
             padding: 2px;
             border-radius: 2rem;
-            overflow: hidden; /* Importante para el recorte del borde */
+            overflow: hidden;
             will-change: transform;
         }
 
-        /* Borde animado optimizado: solo gira un elemento pequeño detrás */
         .ultra-card::before {
             content: '';
             position: absolute;
@@ -72,7 +68,6 @@
             border-radius: calc(2rem - 2px);
             width: 100%;
             height: 100%;
-            /* Desenfoque reducido para mejorar FPS en móviles */
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
@@ -92,11 +87,10 @@
             letter-spacing: 2px;
             position: relative;
             overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease;
             will-change: transform;
         }
 
-        /* Animación de brillo más ligera */
         .gold-button::after {
             content: '';
             position: absolute;
@@ -114,24 +108,31 @@
             30%, 100% { left: 150%; }
         }
 
-        .gold-button:active { transform: scale(0.96); }
-
         .premium-input {
             background: rgba(0, 0, 0, 0.5) !important;
             border: 1px solid rgba(191, 149, 63, 0.2) !important;
             border-radius: 1rem;
             color: #fcf6ba !important;
-            appearance: none; /* Evita estilos nativos en iOS */
+            appearance: none;
         }
 
-        .premium-input:focus {
-            border-color: #fcf6ba !important;
-            background: rgba(0, 0, 0, 0.7) !important;
+        /* Barra de carga VIP */
+        .loading-bar-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .loading-bar-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #bf953f, #fcf6ba);
+            transition: width 2s cubic-bezier(0.65, 0, 0.35, 1);
         }
 
         .animate-fade {
             animation: ultraFade 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-            backface-visibility: hidden;
         }
 
         @keyframes ultraFade {
@@ -153,14 +154,14 @@
                     <div class="absolute inset-0 bg-gold-primary blur-2xl opacity-10"></div>
                     <div class="w-20 h-20 rounded-full border border-[#bf953f] flex items-center justify-center bg-black/80 relative z-10">
                         <svg class="w-10 h-10 text-[#fcf6ba]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                         </svg>
                     </div>
                 </div>
                 <h2 class="text-3xl font-black mb-4 uppercase tracking-tighter leading-none italic">
                     ACCESO <br><span class="gold-text text-4xl">ULTRA VIP</span>
                 </h2>
-                <p class="text-[9px] text-gray-500 tracking-[0.4em] uppercase mb-10 font-bold">Identificación Biométrica Requerida</p>
+                <p class="text-[9px] text-gray-500 tracking-[0.4em] uppercase mb-10 font-bold">Protocolo de Seguridad</p>
                 <button id="btn-start" class="w-full py-4 gold-button rounded-2xl text-base">
                     Confirmar Identidad
                 </button>
@@ -176,28 +177,39 @@
                 </div>
                 <form id="login-form" class="space-y-4">
                     <div class="space-y-1">
-                        <label class="text-[8px] text-gray-500 uppercase tracking-widest ml-1">Usuario Autorizado</label>
-                        <input type="text" id="input-user" required placeholder="UID-0000" class="w-full px-4 py-3 premium-input outline-none text-sm">
+                        <label class="text-[8px] text-gray-500 uppercase tracking-widest ml-1">Usuario</label>
+                        <input type="text" id="input-user" required placeholder="Ingresar ID" class="w-full px-4 py-3 premium-input outline-none text-sm">
                     </div>
                     <div class="space-y-1">
-                        <label class="text-[8px] text-gray-500 uppercase tracking-widest ml-1">Clave Cifrada</label>
+                        <label class="text-[8px] text-gray-500 uppercase tracking-widest ml-1">Clave</label>
                         <input type="password" id="input-pass" required placeholder="••••••••" class="w-full px-4 py-3 premium-input outline-none text-sm">
                     </div>
-                    <div id="error-msg" class="hidden text-red-500 text-[9px] font-bold uppercase text-center">Acceso denegado</div>
+                    <div id="error-msg" class="hidden text-red-500 text-[9px] font-bold uppercase text-center">Datos inválidos</div>
                     <div class="pt-4 space-y-4">
-                        <button type="submit" id="btn-login-submit" class="w-full py-4 gold-button rounded-xl">Entrar al Sistema</button>
-                        <button type="button" id="btn-goto-register" class="w-full text-gray-500 text-[9px] font-bold uppercase tracking-[0.2em] py-2">Nuevo Registro</button>
+                        <button type="submit" id="btn-login-submit" class="w-full py-4 gold-button rounded-xl">Acceder</button>
+                        <button type="button" id="btn-goto-register" class="w-full text-gray-500 text-[9px] font-bold uppercase tracking-[0.2em] py-2">Nuevo Miembro</button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE CARGA (NUEVA) -->
+        <div id="loading-screen" class="hidden ultra-card animate-fade">
+            <div class="card-content p-12 flex flex-col items-center text-center">
+                <div class="w-16 h-16 border-2 border-dashed border-[#bf953f] rounded-full animate-spin mb-8"></div>
+                <h2 class="text-xl font-black gold-text italic uppercase mb-2">Verificando</h2>
+                <p class="text-[9px] text-gray-500 tracking-[0.3em] uppercase mb-8">Sincronizando con Servidor VIP</p>
+                <div class="loading-bar-container">
+                    <div id="progress-bar" class="loading-bar-progress"></div>
+                </div>
             </div>
         </div>
 
         <!-- PANTALLA 3: REGISTRO -->
         <div id="register-screen" class="hidden ultra-card animate-fade">
             <div class="card-content p-8">
-                <h1 class="text-xl font-black gold-text italic text-center mb-6 uppercase">Nuevo Miembro</h1>
+                <h1 class="text-xl font-black gold-text italic text-center mb-6 uppercase">Registro</h1>
                 <form id="register-form" class="space-y-3">
-                    <input type="text" id="reg-name" required placeholder="Nombre" class="w-full px-4 py-3 premium-input outline-none text-sm">
                     <input type="text" id="reg-user" required placeholder="Usuario" class="w-full px-4 py-3 premium-input outline-none text-sm">
                     <input type="password" id="reg-pass" required placeholder="Clave" class="w-full px-4 py-3 premium-input outline-none text-sm">
                     <input type="password" id="reg-confirm" required placeholder="Confirmar" class="w-full px-4 py-3 premium-input outline-none text-sm">
@@ -217,8 +229,8 @@
                         <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
                     </div>
                 </div>
-                <h2 id="success-title" class="text-2xl font-black gold-text italic mb-2 uppercase">VERIFICADO</h2>
-                <p id="success-desc" class="text-gray-500 text-[9px] tracking-[0.4em] uppercase mb-8">Nivel de Élite</p>
+                <h2 id="success-title" class="text-2xl font-black gold-text italic mb-2 uppercase">CONCEDIDO</h2>
+                <p id="success-desc" class="text-gray-500 text-[9px] tracking-[0.4em] uppercase mb-8">Acceso de Élite</p>
                 <div class="w-full bg-black/60 rounded-xl p-4 border border-[#bf953f]/20 mb-8">
                     <p id="display-user" class="text-lg font-black tracking-[0.2em] text-white">---</p>
                 </div>
@@ -259,7 +271,7 @@
                         if (user) isFirebaseReady = true;
                     });
                 }
-            } catch (e) { console.warn("Modo local."); }
+            } catch (e) { console.warn("Modo offline."); }
         };
 
         initFirebase();
@@ -268,6 +280,7 @@
         const screens = {
             start: document.getElementById('start-screen'),
             login: document.getElementById('login-screen'),
+            loading: document.getElementById('loading-screen'),
             register: document.getElementById('register-screen'),
             success: document.getElementById('success-screen')
         };
@@ -280,10 +293,20 @@
         document.getElementById('btn-start').onclick = () => showScreen('login');
         document.getElementById('btn-goto-register').onclick = () => showScreen('register');
         document.getElementById('btn-back-login').onclick = () => showScreen('login');
-        
         document.getElementById('btn-redirect').onclick = () => {
             window.location.href = "https://beacons.ai/xican_41462008";
         };
+
+        async function triggerLoading(user, type) {
+            showScreen('loading');
+            const bar = document.getElementById('progress-bar');
+            setTimeout(() => { bar.style.width = '100%'; }, 50);
+            
+            // Simular tiempo de verificación para efecto visual
+            setTimeout(() => {
+                loginSuccess(user, type);
+            }, 2500);
+        }
 
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
@@ -293,12 +316,12 @@
             btn.disabled = true;
 
             if (defaults[u] && defaults[u] === p) {
-                loginSuccess(u, "Nivel de Mando");
+                triggerLoading(u, "Nivel Administrativo");
             } else if (isFirebaseReady && db) {
                 try {
                     const userDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', u));
                     if (userDoc.exists() && userDoc.data().pass === p) {
-                        loginSuccess(u, "Acceso Autorizado");
+                        triggerLoading(u, "Miembro VIP");
                     } else { showError('login'); }
                 } catch (err) { showError('login'); }
             } else { showError('login'); }
@@ -328,7 +351,7 @@
                     errorLabel.classList.remove('hidden');
                 } else {
                     await setDoc(userRef, { user, pass, createdAt: new Date().toISOString() });
-                    loginSuccess(user, "Nueva Cuenta");
+                    triggerLoading(user, "Nuevo Miembro");
                 }
             } catch (err) {
                 errorLabel.textContent = "Error de conexión";
@@ -341,6 +364,8 @@
             document.getElementById('success-desc').textContent = type;
             document.getElementById('display-user').textContent = user;
             showScreen('success');
+            // Reiniciar barra para futuros accesos
+            document.getElementById('progress-bar').style.width = '0%';
         }
 
         function showError(type) {
