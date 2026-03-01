@@ -6,6 +6,8 @@
     <title>Xican.net | Portal Ultra VIP</title>
     <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;700;900&display=swap" rel="stylesheet">
+    <!-- Librería de Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
         :root {
             --orange: #ff6600;
@@ -66,23 +68,43 @@
             backdrop-filter: blur(20px);
         }
 
-        /* Botón VIP Optimizado */
+        /* Botón de volver diagonal superior */
+        .back-btn {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            z-index: 50;
+            color: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            color: var(--orange);
+            transform: translateX(-3px);
+        }
+
+        /* Botón VIP Optimizado con Efecto de Flotación */
         .vip-button {
             background: linear-gradient(135deg, #ff4d00 0%, #ff7b00 100%);
             color: #fff;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.15em;
-            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
             position: relative;
             overflow: hidden;
             border: none;
             box-shadow: 0 10px 20px -5px rgba(255, 77, 0, 0.4);
         }
 
+        .vip-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -5px rgba(255, 77, 0, 0.6);
+            filter: brightness(1.1);
+        }
+
         .vip-button:active {
-            transform: scale(0.96);
-            filter: brightness(1.2);
+            transform: translateY(-2px) scale(0.98);
         }
 
         .vip-button::after {
@@ -117,7 +139,6 @@
 
         .hidden { display: none; }
         
-        /* Animaciones de entrada */
         .reveal {
             animation: revealEffect 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
@@ -141,11 +162,9 @@
         <section id="screen-start" class="ultra-card reveal">
             <div class="card-inner p-12 flex flex-col items-center text-center">
                 <div class="mb-10 relative">
-                    <div class="absolute inset-0 bg-orange-500 blur-3xl opacity-20"></div>
-                    <div class="w-24 h-24 border-2 border-orange-500/50 rounded-full flex items-center justify-center relative z-10 bg-black/40 backdrop-blur-md">
-                        <svg class="w-12 h-12 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        </svg>
+                    <div class="absolute inset-0 bg-orange-500 blur-3xl opacity-30"></div>
+                    <div class="w-32 h-32 rounded-full overflow-hidden relative z-10 border-2 border-orange-500/50 p-1 bg-black/40 backdrop-blur-md">
+                        <img src="https://files.oaiusercontent.com/file-K1S2f9j8k4n7m2p5q3r1t4w6" alt="Xican Logo" class="w-full h-full object-cover rounded-full" onerror="this.src='https://ui-avatars.com/api/?name=Xican&background=ff6600&color=fff'">
                     </div>
                 </div>
                 <h1 class="text-4xl font-black italic tracking-tighter mb-2">XICAN<span class="text-orange-500">.NET</span></h1>
@@ -156,7 +175,14 @@
 
         <!-- PANTALLA 2: LOGIN -->
         <section id="screen-login" class="hidden ultra-card reveal">
-            <div class="card-inner p-10">
+            <div class="card-inner p-10 pt-16 relative">
+                <!-- Botón Volver Diagonal Superior -->
+                <button onclick="nav('start')" class="back-btn">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </button>
+
                 <div class="flex justify-between items-center mb-10">
                     <h2 class="text-xs font-black text-orange-500 uppercase tracking-widest italic">XICAN.NET ID</h2>
                     <div class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></div>
@@ -192,7 +218,14 @@
 
         <!-- PANTALLA 3: REGISTRO -->
         <section id="screen-register" class="hidden ultra-card reveal">
-            <div class="card-inner p-10">
+            <div class="card-inner p-10 pt-16 relative">
+                <!-- Botón Volver Diagonal Superior -->
+                <button onclick="nav('login')" class="back-btn">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </button>
+
                 <h2 class="text-lg font-black text-orange-500 italic mb-8 uppercase text-center">Registro Xican</h2>
                 <form onsubmit="handleRegister(event)" class="space-y-4">
                     <input type="text" id="reg-u" required placeholder="NUEVO ID" class="w-full px-5 py-4 premium-field rounded-xl outline-none text-xs font-bold uppercase tracking-widest">
@@ -200,7 +233,6 @@
                     <input type="password" id="reg-c" required placeholder="CONFIRMAR" class="w-full px-5 py-4 premium-field rounded-xl outline-none text-xs">
                     <p id="reg-err" class="hidden text-red-500 text-[9px] font-bold uppercase text-center italic"></p>
                     <button type="submit" class="w-full py-5 vip-button rounded-xl text-sm mt-4">Confirmar Enlace</button>
-                    <button type="button" onclick="nav('login')" class="w-full py-2 text-gray-600 text-[9px] font-bold uppercase tracking-widest">Volver</button>
                 </form>
             </div>
         </section>
@@ -232,7 +264,6 @@
         let db, auth, isCloud = false;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'xican-net-vip';
 
-        // Usuarios estáticos
         const staticUsers = { "referente": "1234", "Altamente.13": "1234", "Xican.net": "123", "Bladimir": "1234" };
 
         const init = async () => {
@@ -263,6 +294,15 @@
             setTimeout(() => {
                 document.getElementById('target-user').textContent = u.toUpperCase();
                 nav('success');
+                
+                // LANZAR ANIMACIÓN DE CONFETI
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#ff6600', '#ffffff', '#ff9d00'],
+                    zIndex: 999
+                });
             }, 1800);
         };
 
